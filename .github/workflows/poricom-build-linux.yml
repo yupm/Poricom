@@ -6,6 +6,12 @@ jobs:
   setup:
     runs-on: "ubuntu-latest"
     steps:
+      - name: Install fpm
+        shell: bash -el {0}
+        run: |
+          echo "$PWD"
+          tree
+
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
         with:
