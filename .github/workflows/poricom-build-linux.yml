@@ -3,34 +3,48 @@ name: Poricom Linux (deb) Package
 on: [push]
 
 jobs:
-  setup:
+  deb-build:
     runs-on: "ubuntu-latest"
     steps:
+      - name: Checkout source code
       - uses: actions/checkout@v2
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Prepare base environment 
+        uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: poricom-py39
           environment-file: environment/base.yaml
           python-version: 3.9
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Prepare package bundle dependencies
+        uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: poricom-py39
           environment-file: environment/build.yaml
           python-version: 3.9
 
+      - name: Install ruby 
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+
       - name: Install fpm
         shell: bash -el {0}
         run: |
-          sudo apt get install ruby
           gem install fpm
           fpm --version
 
       - name: Begin Build
         shell: bash -el {0}
         run: |
+          echo "$PWD"
+          fpm --version
           cd ./build/linux
           chmod +x linux-build-deb.sh
           ./linux-build-deb.sh
-          echo "$PWD"
+
+      - name: Archive deb file
+        uses: actions/upload-artifact@v3
+        with:
+          name: poricom-deb
+          path: build/linux/poricom.deb
