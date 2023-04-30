@@ -1,0 +1,35 @@
+name: Poricom Linux (deb) Package
+
+on: [push]
+
+jobs:
+  setup:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: poricom-py39
+          environment-file: environment/base.yml
+          python-version: 3.9
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: poricom-py39
+          environment-file: environment/build.yml
+          python-version: 3.9
+
+      - name: Install fpm
+        shell: bash -el {0}
+        run: |
+          sudo apt get install ruby
+          gem install fpm
+          fpm --version
+
+      - name: Begin Build
+        shell: bash -el {0}
+        run: |
+          cd ./build/linux
+          chmod +x linux-build-deb.sh
+          ./linux-build-deb.sh
+          echo "$PWD"
