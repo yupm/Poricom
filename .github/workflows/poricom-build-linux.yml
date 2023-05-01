@@ -5,6 +5,9 @@ on: [push]
 jobs:
   Build-Deb:
     runs-on: "ubuntu-latest"
+    env:
+      DISPLAY: ':99.0'
+
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -35,3 +38,39 @@ jobs:
           use-only-tar-bz2: true
           python-version: 3.9
 
+      - name: Setup QT display deps
+        uses: tlambert03/setup-qt-libs@v1
+
+      - name: Setup QT display env
+        run: |
+          /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
+
+      - name: Activate Poricom first time 
+        shell: bash -el {0}
+        run: |
+          cd ./app
+          python main.py
+
+      - name: Install ruby 
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+
+      - name: Install fpm
+        shell: bash -el {0}
+        run: |
+          gem install fpm
+          fpm --version
+
+      - name: Begin Build
+        shell: bash -el {0}
+        run: |
+          cd ../build/linux
+          chmod +x linux-build-deb.sh
+          ./linux-build-deb.sh
+
+      - name: Archive deb file
+        uses: actions/upload-artifact@v3
+        with:
+          name: poricom-deb
+          path: build/linux/poricom.deb
