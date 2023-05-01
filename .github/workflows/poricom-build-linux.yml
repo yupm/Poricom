@@ -3,7 +3,7 @@ name: Poricom Linux (deb) Package
 on: [push]
 
 jobs:
-  deb-build:
+  Build-Deb:
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout source code
