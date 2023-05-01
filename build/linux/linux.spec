@@ -87,6 +87,7 @@ coll = COLLECT(exe,
 excluded_files = [
   'libtorch_cuda_linalg.so',
   'libnccl.so.2',
+  'libcufft.so.10',
   'libcusparse.so.11'
 ]
 
