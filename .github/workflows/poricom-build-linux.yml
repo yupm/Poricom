@@ -84,8 +84,7 @@ jobs:
       - name: Begin Build
         shell: bash -el {0}
         run: |
-          pwd
-          cd ~/build/linux
+          cd ./build/linux
           pwd
           chmod +x linux-build-deb.sh
           ./linux-build-deb.sh
