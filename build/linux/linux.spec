@@ -44,7 +44,7 @@ excluded_binaries  = [
   'libtorch_cpu.so', 
   'libtorch_cuda_cpp.so',
   'libtorch_cuda_cu.so',
-  'libtorch_cuda_linalg.so'\
+  'libtorch_cuda_linalg.so'
 ]
 a.binaries = [x for x in a.binaries if not x[0] in excluded_binaries]
 
@@ -85,9 +85,7 @@ coll = COLLECT(exe,
                name='app')
 
 excluded_files = [
-  'libtorch_cuda_linalg.so',
-  'kor*traineddata',
-  'chi*traineddata',
+  'libtorch_cuda_linalg.so'
 ]
 
 for binary in excluded_files:

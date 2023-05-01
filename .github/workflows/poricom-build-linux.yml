@@ -1,0 +1,81 @@
+name: Poricom Linux (deb) Package
+
+on: [push]
+
+jobs:
+  Build-Deb:
+    runs-on: "ubuntu-latest"
+    env:
+      DISPLAY: ':99.0'
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: poricom-py39
+          use-mamba: true
+
+      - name: Cache Conda env
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.CONDA }}/envs
+          key:
+            conda-${{ runner.os }}-${{ runner.arch }}-${{hashFiles('environment/base.yaml') }}-${{hashFiles('environment/build.yaml') }}-${{ env.CACHE_NUMBER}}
+        env:
+          # Increase this value to reset cache if etc/example-environment.yml has not changed
+          CACHE_NUMBER: 0
+        id: cache
+
+      - name: Update environment base.yaml
+        run:
+          mamba env update -n poricom-py39 -f environment/base.yaml
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Update environment build.yaml
+        run:
+          mamba env update -n poricom-py39 -f environment/build.yaml
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Setup QT display deps
+        uses: tlambert03/setup-qt-libs@v1
+
+      - name: Setup QT display env
+        run: |
+          /sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -screen 0 1920x1200x24 -ac +extension GLX
+
+      - name: Activate Poricom first time 
+        shell: bash -el {0}
+        timeout-minutes: 1
+        continue-on-error: true
+        run: |
+          cd ./app
+          python main.py
+
+      - name: Install ruby 
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+
+      - name: Install fpm
+        shell: bash -el {0}
+        run: |
+          gem install fpm
+          fpm --version
+
+      - name: Begin Build
+        shell: bash -el {0}
+        run: |
+          cd ./build/linux
+          chmod +x linux-build-deb.sh
+          ./linux-build-deb.sh
+
+      - name: Archive deb file
+        uses: actions/upload-artifact@v3
+        with:
+          name: poricom-deb
+          path: build/linux/poricom.deb
