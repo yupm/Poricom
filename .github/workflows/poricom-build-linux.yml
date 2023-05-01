@@ -64,7 +64,7 @@ jobs:
 
       - name: Activate Poricom first time 
         shell: bash -el {0}
-        timeout-minutes: 2
+        timeout-minutes: 1
         continue-on-error: true
         run: |
           cd ./app
@@ -84,7 +84,9 @@ jobs:
       - name: Begin Build
         shell: bash -el {0}
         run: |
-          cd ../build/linux
+          pwd
+          cd ~/build/linux
+          pwd
           chmod +x linux-build-deb.sh
           ./linux-build-deb.sh
 
