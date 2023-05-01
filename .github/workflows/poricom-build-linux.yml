@@ -23,12 +23,6 @@ jobs:
           environment-file: environment/build.yaml
           python-version: 3.9
 
-      - name: Activate Poricom first time 
-        shell: bash -el {0}
-        run: |
-          cd ./app
-          python main.py
-
       - name: Install ruby 
         uses: ruby/setup-ruby@v1
         with:
@@ -43,7 +37,7 @@ jobs:
       - name: Begin Build
         shell: bash -el {0}
         run: |
-          cd ../build/linux
+          cd ./build/linux
           chmod +x linux-build-deb.sh
           ./linux-build-deb.sh
 
